@@ -12,8 +12,9 @@ find_package(xacro REQUIRED)
 install(
   DIRECTORY
   launch
-  xacro
   urdf
+  rviz
+  meshes
   DESTINATION share/${PROJECT_NAME}
 )
 

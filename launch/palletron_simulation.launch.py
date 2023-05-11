@@ -4,10 +4,12 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition , UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration, PythonExpression, Command
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
+
 
 def generate_launch_description():
     # Get the launch directory
@@ -27,13 +29,12 @@ def generate_launch_description():
     world = LaunchConfiguration('world')
     pose = {'x': LaunchConfiguration('x_pose', default = '0.0'),
             'y': LaunchConfiguration('y_pose', default = '0.0'),
-            'z': LaunchConfiguration('z_pose', default = '0.01'),
+            'z': LaunchConfiguration('z_pose', default = '0.32'),
             'R': LaunchConfiguration('roll', default = '0.00'),
             'P': LaunchConfiguration('pitch', default = '0.00'),
             'Y': LaunchConfiguration('yaw', default = '0.00')}
     robot_name = LaunchConfiguration('robot_name')
     robot_xacro = LaunchConfiguration('robot_xacro')
-
     remappings = [('/tf', 'tf'),
                   ('/tf_static', 'tf_static')]
 
@@ -70,7 +71,7 @@ def generate_launch_description():
 
     declare_robot_xacro_cmd = DeclareLaunchArgument(
         'robot_xacro',
-        default_value = os.path.join(palletron_gazebo_dir, 'xacro', 'palletron.gazebo.xacro'),
+        default_value = os.path.join(palletron_gazebo_dir, 'urdf', 'palletron.gazebo.xacro'),
         description = 'Full path to robot xacro file to spawn the robot in gazebo')
     
     declare_simulator_cmd = DeclareLaunchArgument(
@@ -90,7 +91,7 @@ def generate_launch_description():
         condition = IfCondition(PythonExpression([use_simulator, ' and not ', headless]))
     )
 
-    urdf = os.path.join(palletron_gazebo_dir, 'urdf', 'palletron.urdf')
+    urdf = os.path.join(palletron_gazebo_dir, 'urdf', 'palletron.gazebo.xacro')
     with open(urdf, 'r') as infp:
         robot_description = infp.read()
 
@@ -98,11 +99,8 @@ def generate_launch_description():
         condition = IfCondition(use_robot_state_pub),
         package = 'robot_state_publisher',
         executable = 'robot_state_publisher',
-        name = 'robot_state_publisher',
-        namespace = namespace,
         output = 'screen',
-        parameters = [{'robot_description': robot_description}],
-        remappings = remappings)
+        parameters = [{'robot_description': ParameterValue(Command(['xacro ', urdf]), value_type = str)}])
 
     start_gazebo_spawner_cmd = Node(
         package = 'gazebo_ros',
@@ -110,10 +108,43 @@ def generate_launch_description():
         output = 'screen',
         arguments = [
             '-entity', robot_name,
-            '-file', robot_xacro,
-            '-robot_namespace', namespace,
+            '-topic', '/robot_description',
             '-x', pose['x'], '-y', pose['y'], '-z', pose['z'],
             '-R', pose['R'], '-P', pose['P'], '-Y', pose['Y']])
+    
+    start_rviz_cmd = Node(
+       package='rviz2',
+       namespace= namespace,
+       executable='rviz2',
+        arguments=[
+           '-d' + os.path.join(get_package_share_directory('palletron_gazebo'), 
+           'rviz', 'palletron_config.rviz')]
+            
+    )
+
+    # start_diff_drive_spawner_cmd = Node(
+    #     package="controller_manager",
+    #     executable="spawner",       
+    #     arguments=["diff_cont"],
+    # )
+
+    # start_joint_broad_spawner_cmd = Node(
+    #     package="controller_manager",
+    #     executable="spawner",     
+    #     arguments=["joint_broad"],
+    # )
+
+#     declare_joint_state_publisher_cmd = Node(
+#    	    package="joint_state_publisher",
+#    	    executable="joint_state_publisher", 	 
+#    	    condition=UnlessCondition(joint_gui)
+#    )
+    
+#     declare_joint_state_publisher_gui_cmd = Node(
+#    	    package="joint_state_publisher_gui",
+#    	    executable="joint_state_publisher_gui",   
+#    	    condition=IfCondition(joint_gui)
+#    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -127,13 +158,17 @@ def generate_launch_description():
     ld.add_action(declare_world_cmd)
     ld.add_action(declare_robot_name_cmd)
     ld.add_action(declare_robot_xacro_cmd)
+    # ld.add_action(declare_joint_state_publisher_cmd)
+    # ld.add_action(declare_joint_state_publisher_gui_cmd)
+    #ld.add_action(declare_joint_gui_cmd)
 
     # Add any conditioned actions
     ld.add_action(start_gazebo_server_cmd)
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_gazebo_spawner_cmd)
-
+    ld.add_action(start_rviz_cmd)
     # Add the actions to launch all of the navigation nodes
     ld.add_action(start_robot_state_publisher_cmd)
-
+    # ld.add_action(start_joint_broad_spawner_cmd)
+    # ld.add_action(start_diff_drive_spawner_cmd)
     return ld
