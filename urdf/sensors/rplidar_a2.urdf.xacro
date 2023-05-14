@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- Includes -->
+  <xacro:include filename="rplidar_a2.gazebo.xacro"/>
+
+  <xacro:macro name="rplidar_a2_sensor" params="x y z update_rate samples min_angle max_angle min_range max_range">
+    <link name="rplidar_link">
+      <visual>
+        <origin rpy="0 0 ${pi/2}" xyz="0 0 -0.025"/>
+        <geometry>
+          <mesh filename="file:///$(find palletron_gazebo)/meshes/rplidar.dae"/>
+        </geometry>
+        <material name="dark"/>
+      </visual>
+      
+      <collision>
+        <origin rpy="0 0 ${pi/2}" xyz="0.003 -0.003 -0.027"/>
+        <geometry>
+          <cylinder length="0.04" radius="0.0375"/>
+        </geometry>
+      </collision>
+      
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="0.1"/>
+        <xacro:cylinder_inertia m="0.1" r="0.0375" h="0.04"/>
+      </inertial>
+    </link>
+    
+    <joint name="rplidar_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="rplidar_link"/>
+      <origin rpy="0 0 0" xyz="${x} ${y} ${z}"/>
+    </joint>
+
+    <!-- Gazebo extentions -->
+    <xacro:rplidar_a2_sensor_gazebo 
+      update_rate="${update_rate}"
+      samples="${samples}"
+      min_angle="${min_angle}"
+      max_angle="${max_angle}"
+      min_range="${min_range}"
+      max_range="${max_range}"
+      />
+  </xacro:macro>
+</robot>

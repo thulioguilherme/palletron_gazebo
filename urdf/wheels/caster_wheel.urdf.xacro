@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-
+  <!-- Includes -->
   <xacro:include filename="caster_wheel.gazebo.xacro"/>
 
-  <xacro:macro name="caster" params="name radius x_offset y_offset z_offset parent">
+  <xacro:macro name="caster_wheel" params="name radius mass x_offset y_offset z_offset parent">
     <link name="${name}_link">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <sphere radius="${radius}"/>
         </geometry>
-        <material name="black"/>
+        <material name="grey"/>
       </visual>
 
       <collision>
@@ -23,12 +23,11 @@
       </collision>
 
       <inertial>
-        <origin xyz="${x_offset} 0 0" rpy="0 0 0"/>
-        <mass value="4.0"/>
-        <xacro:solid_sphere_inertia r="${radius}" m="4.0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <xacro:sphere_inertia r="${radius}" m="${mass}"/>
         <inertia />
       </inertial>
-
     </link>
 
     <joint name="${name}_joint" type="fixed">
@@ -38,7 +37,6 @@
     </joint>
 
     <!-- Gazebo extensions -->
-    <caster_gazebo name="${name}"/>
-
+    <xacro:caster_wheel_gazebo name="${name}"/>
   </xacro:macro>
 </robot>

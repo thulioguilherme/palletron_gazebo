@@ -28,7 +28,7 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /robot_description
       Enabled: true
-      Name: palletron
+      Name: Palletron
       Visual Enabled: true
     - Class: rviz_default_plugins/TF
       Enabled: false
