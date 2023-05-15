@@ -24,7 +24,7 @@ This repository provides the ROS package to simulate the Palletron robot on Gaze
   ```
   colcon build
   ```
-* Source the `setup.bash` from the `install` folder, and then launch a simulation.
+* Source the `setup.bash` from the `install` folder and launch a simulation.
   ```
   source install/setup.bash
   ros2 launch palletron_gazebo palletron_simulation.launch.py
