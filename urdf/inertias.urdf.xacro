@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="solid_sphere_inertia_macro" params="mass radius">
+    <inertia
+      ixx="${2 * radius * radius * mass / 5}"
+      iyy="${2 * radius * radius * mass / 5}"
+      izz="${2 * radius * radius * mass / 5}"
+      ixy="0" ixz="0" iyz="0"/>
+  </xacro:macro>
+
+  <xacro:macro name="solid_cylinder_inertia_macro" params="mass radius height">
+    <inertia
+      ixx="${mass * 3 * radius * radius + height * height / 12}"
+      iyy="${mass * 3 * radius * radius + height * height / 12}"
+      izz="${mass * radius * radius / 2}"
+      ixy="0" ixz="0" iyz="0"/>
+  </xacro:macro>
+
+  <xacro:macro name="solid_cuboid_inertia_macro" params="mass height depth width">
+    <inertia
+      ixx="${mass * (height * height + depth * depth) / 12}"
+      iyy="${mass * (width * width + depth * depth) / 12}"
+      izz="${mass * (width * width + height * height) / 12}"
+      ixy="0" ixz="0" iyz="0"/>
+  </xacro:macro>
+</robot>

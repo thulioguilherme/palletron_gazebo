@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="rplidar.gazebo.xacro"/>
+  
+  <xacro:macro name="rplidar_macro" params="x y z roll pitch yaw parent use_less_scan_samples">
+    <joint name="rplidar_joint" type="fixed">
+      <origin xyz="${x} ${y} ${z + 0.031}" rpy="${roll} ${pitch} ${yaw}"/>
+      <parent link="${parent}"/>
+      <child link="rplidar_link"/>
+    </joint>
+
+    <link name="rplidar_link">
+      <visual>
+        <origin xyz="0 0 -0.031" rpy="0 0 ${pi}"/>
+        <geometry>
+          <mesh filename="file:///$(find palletron_gazebo)/meshes/sensors/rplidar.stl"
+            scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="flat_black"/>
+      </visual>
+    </link>
+    
+    <!-- Include Gazebo extensions -->
+    <xacro:rplidar_gazebo_macro/>
+  </xacro:macro>
+</robot>

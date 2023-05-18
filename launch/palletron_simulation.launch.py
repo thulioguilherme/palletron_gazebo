@@ -25,11 +25,12 @@ def generate_launch_description():
     # Launch configuration variables
     headless = LaunchConfiguration('headless')
     world = LaunchConfiguration('world')
+    use_sim_time = LaunchConfiguration('use_sim_time')
     robot_name = LaunchConfiguration('robot_name')
     robot_urdf = LaunchConfiguration('robot_urdf')
     pose = {'x': LaunchConfiguration('x_pose', default = '0.0'),
             'y': LaunchConfiguration('y_pose', default = '0.0'),
-            'z': LaunchConfiguration('z_pose', default = '0.05'),
+            'z': LaunchConfiguration('z_pose', default = '0.45'),
             'R': LaunchConfiguration('roll', default = '0.00'),
             'P': LaunchConfiguration('pitch', default = '0.00'),
             'Y': LaunchConfiguration('yaw', default = '0.00')}
@@ -47,6 +48,11 @@ def generate_launch_description():
         description = 'Full path to world model file to load'
     )
 
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value = 'True'
+    )
+
     declare_robot_name_cmd = DeclareLaunchArgument(
         'robot_name',
         default_value = 'palletron',
@@ -55,7 +61,7 @@ def generate_launch_description():
 
     declare_robot_urdf_cmd = DeclareLaunchArgument(
         'robot_urdf',
-        default_value = os.path.join(palletron_gazebo_dir, 'urdf', 'palletron.urdf.xacro'),
+        default_value = os.path.join(palletron_gazebo_dir, 'urdf', 'palletron.xacro'),
         description = 'Full path to robot urdf file to spawn the robot in gazebo'
     )
     
@@ -75,12 +81,8 @@ def generate_launch_description():
         package = 'robot_state_publisher',
         executable = 'robot_state_publisher',
         output = 'screen',
-        parameters = [{'robot_description': ParameterValue(Command(['xacro ', robot_urdf]), value_type = str)}]
-    )
-
-    start_joint_state_publisher_cmd = Node(
-        package = "joint_state_publisher",
-        executable = "joint_state_publisher"
+        parameters = [{'robot_description': ParameterValue(Command(['xacro ', robot_urdf]), value_type = str),
+            'use_sim_time' : use_sim_time}]
     )
 
     start_gazebo_spawner_cmd = Node(
@@ -104,7 +106,7 @@ def generate_launch_description():
 
     delay_rviz_after_joint_state_publisher_cmd = RegisterEventHandler(
         event_handler = OnProcessStart(
-            target_action = start_joint_state_publisher_cmd,
+            target_action = start_gazebo_spawner_cmd,
             on_start = [
                 TimerAction(period = 5.0, actions = [start_rviz_cmd])],
         )
@@ -116,6 +118,7 @@ def generate_launch_description():
     # Parameters
     ld.add_action(declare_headless_cmd)
     ld.add_action(declare_world_cmd)
+    ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_robot_name_cmd)
     ld.add_action(declare_robot_urdf_cmd)
     
@@ -124,7 +127,6 @@ def generate_launch_description():
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_gazebo_spawner_cmd)
     ld.add_action(start_robot_state_publisher_cmd)
-    ld.add_action(start_joint_state_publisher_cmd)
     ld.add_action(delay_rviz_after_joint_state_publisher_cmd)
 
     return ld

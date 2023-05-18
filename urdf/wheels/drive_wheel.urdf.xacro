@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <!-- Includes -->
   <xacro:include filename="drive_wheel.gazebo.xacro"/>
-
-  <xacro:macro name="drive_wheel" params="name radius mass z_offset width separation reflect parent">
-    <link name="${name}_link">
+  
+  <xacro:macro name="drive_wheel_macro" params="prefix mass radius length parent *origin">
+    <link name="${prefix}_link">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <cylinder radius="${radius}" length="${width}"/>
+          <cylinder radius="${radius}" length="${length}"/>
         </geometry>
         <material name="black"/>
       </visual>
@@ -17,26 +16,25 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <cylinder radius="${radius}" length="${width}"/>
+          <cylinder radius="${radius}" length="${length}"/>
         </geometry>
-        <material name="orange"/>
       </collision>
 
       <inertial>
-        <origin xyz="0 0 ${-0.00207 * reflect}" rpy="0 0 0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="${mass}"/>
-        <xacro:cylinder_inertia m="${mass}" r="${radius}" h="${width}"/>
+        <xacro:solid_cylinder_inertia_macro mass="${mass}" radius="${radius}" height="${length}"/>
       </inertial>
     </link>
 
-    <joint name="${name}_joint" type="continuous">
-      <origin xyz="0 ${-separation / 2 * reflect} ${z_offset}" rpy="${-pi/2} 0 0"/>
+    <joint name="${prefix}_joint" type="continuous">
+      <xacro:insert_block name="origin"/>
       <parent link="${parent}"/>
-      <child link="${name}_link"/>
+      <child link="${prefix}_link"/>
       <axis xyz="0 0 1"/>
     </joint>
-
-    <!-- Gazebo extensions -->
-    <xacro:drive_wheel_gazebo name="${name}"/>
+    
+    <!-- Include Gazebo extensions -->
+    <xacro:drive_wheel_gazebo_macro/>
   </xacro:macro>
 </robot>

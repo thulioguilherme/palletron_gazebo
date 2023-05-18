@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+
+<robot name="palletron" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- Includes -->
+  <xacro:include filename="common_properties.urdf.xacro"/>
+
+  <xacro:include filename="inertias.urdf.xacro"/>
+
+  <xacro:include filename="bases/default_base.urdf.xacro"/>
+
+  <xacro:include filename="controllers/differential_drive.gazebo.xacro"/>
+
+  <xacro:include filename="wheels/drive_wheel.urdf.xacro"/>
+  <xacro:include filename="wheels/caster_wheel.urdf.xacro"/>
+
+  <xacro:include filename="sensors/rplidar.urdf.xacro"/>
+
+  <!-- Args -->
+  <xacro:arg name="use_less_scan_samples" default="false"/>
+
+  <!-- TODO: Update according to real properties -->
+
+  <!-- Base parameters -->
+  <xacro:property name="base_width" value="0.7"/>
+  <xacro:property name="base_height" value="0.7"/>
+  <xacro:property name="base_depth" value="0.7"/>
+  <xacro:property name="base_mass" value="50"/>
+
+  <!-- Drive wheels parameters -->
+  <xacro:property name="drive_wheel_mass" value="4.0"/>
+  <xacro:property name="drive_wheel_radius" value="0.13"/>
+  <xacro:property name="drive_wheel_length" value="0.05"/>
+  <xacro:property name="drive_wheel_separation" value="0.33"/>
+  <xacro:property name="drive_wheel_offset_z" value="-0.275"/>
+  <xacro:property name="drive_wheel_max_acceleration" value="1.0"/>
+  <xacro:property name="drive_wheel_max_torque" value="6.0"/>
+  <xacro:property name="right_drive_wheel_prefix" value="right_wheel"/>
+  <xacro:property name="left_drive_wheel_prefix" value="left_wheel"/>
+
+  <!-- Caster wheels parameters -->
+  <xacro:property name="caster_radius" value="0.045"/>
+  <xacro:property name="caster_mass" value="0.005"/>
+  <xacro:property name="caster_offset_x" value="0.25"/>
+  <xacro:property name="caster_offset_y" value="0.25"/>
+  <xacro:property name="caster_offset_ground" value="0.005"/>
+
+  <!-- Add default base -->
+  <xacro:default_base_macro mass="${base_mass}"
+    width="${base_width}"
+    height="${base_height}"
+    depth="${base_depth}">
+    <!-- Base footprint origin -->
+    <origin xyz="0 0 ${drive_wheel_radius - drive_wheel_offset_z}" rpy="0 0 0"/>
+  </xacro:default_base_macro>
+
+  <!-- Add the differential drive plugin -->
+  <xacro:differential_drive_macro right_wheel_prefix="${right_drive_wheel_prefix}"
+    left_wheel_prefix="${left_drive_wheel_prefix}"
+    wheel_separation="${drive_wheel_separation}"
+    wheel_diameter="${drive_wheel_radius * 2}"
+    wheel_max_torque="${drive_wheel_max_torque}"
+    wheel_max_acceleration="${drive_wheel_max_acceleration}">
+  </xacro:differential_drive_macro>
+
+  <!-- Add two drive wheels {-->
+  <xacro:drive_wheel_macro prefix="${right_drive_wheel_prefix}"
+    mass="${drive_wheel_mass}"
+    radius="${drive_wheel_radius}"
+    length="${drive_wheel_length}"
+    parent="base_link">
+    <origin xyz="0 ${-drive_wheel_separation/2} ${drive_wheel_offset_z}" rpy="${-pi/2} 0 0"/>
+  </xacro:drive_wheel_macro>
+
+  <xacro:drive_wheel_macro prefix="${left_drive_wheel_prefix}"
+    mass="${drive_wheel_mass}"
+    radius="${drive_wheel_radius}"
+    length="${drive_wheel_length}"
+    parent="base_link">
+    <origin xyz="0 ${drive_wheel_separation/2} ${drive_wheel_offset_z}" rpy="${-pi/2} 0 0"/>
+  </xacro:drive_wheel_macro>
+
+  <!-- Add four caster wheels -->
+  <xacro:caster_wheel_macro prefix="front_right_caster"
+    mass="${caster_mass}"
+    radius="${caster_radius}"
+    parent="base_link">
+    <origin xyz="-${caster_offset_x} ${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
+  </xacro:caster_wheel_macro>
+
+  <xacro:caster_wheel_macro prefix="front_left_caster"
+    mass="${caster_mass}"
+    radius="${caster_radius}"
+    parent="base_link">
+    <origin xyz="${caster_offset_x} ${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
+  </xacro:caster_wheel_macro>
+
+  <xacro:caster_wheel_macro prefix="rear_right_caster"
+    mass="${caster_mass}"
+    radius="${caster_radius}"
+    parent="base_link">
+    <origin xyz="-${caster_offset_x} -${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
+  </xacro:caster_wheel_macro>
+
+  <xacro:caster_wheel_macro prefix="rear_left_caster"
+    mass="${caster_mass}"
+    radius="${caster_radius}"
+    parent="base_link">
+    <origin xyz="${caster_offset_x} -${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
+  </xacro:caster_wheel_macro>
+
+  <!-- Add a RPlidar -->
+  <xacro:rplidar_macro x="0"
+    y="0"
+    z="${base_height / 2}"
+    roll="0"
+    pitch="0"
+    yaw="0"
+    parent="base_link"
+    use_less_scan_samples="$(arg use_less_scan_samples)">
+  </xacro:rplidar_macro>
+</robot>
