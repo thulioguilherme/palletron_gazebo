@@ -27,7 +27,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /robot_description
+        Value: <robot_namespace>/robot_description
       Enabled: true
       Name: Palletron
       Visual Enabled: true
@@ -60,7 +60,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.019999999552965164
+      Size (m): 0.03
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -68,14 +68,14 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /scan
+        Value: <robot_namespace>/scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_footprint
+    Fixed Frame: <robot_namespace>/base_footprint
     Frame Rate: 30
   Name: root
   Tools:
