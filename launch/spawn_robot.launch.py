@@ -16,14 +16,14 @@ def launch_setup(context: LaunchContext):
     robot_optional_properties = LaunchConfiguration('robot_optional_properties')
     pose = {'x': LaunchConfiguration('x_pose', default = '0.0'),
             'y': LaunchConfiguration('y_pose', default = '0.0'),
-            'z': LaunchConfiguration('z_pose', default = '0.05'),
+            'z': LaunchConfiguration('z_pose', default = '0.01'),
             'R': LaunchConfiguration('roll', default = '0.00'),
             'P': LaunchConfiguration('pitch', default = '0.00'),
             'Y': LaunchConfiguration('yaw', default = '0.00')}
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    # 
-    robot_topic = namespace.perform(context) + '/robot_description'
+    # Put namespace on the robot description topic name
+    robot_description_topic = namespace.perform(context) + '/robot_description'
 
     # Get full path to the robot URDF file
     robot_urdf_path = PathJoinSubstitution(
@@ -48,6 +48,13 @@ def launch_setup(context: LaunchContext):
             'use_sim_time' : use_sim_time}]
     )
 
+    joint_state_publisher_node = Node(
+        package = 'joint_state_publisher',
+        executable = 'joint_state_publisher',
+        namespace = namespace,
+        output = 'screen'
+    )
+
     spawn_robot_node = Node(
         package = 'gazebo_ros',
         executable = 'spawn_entity.py',
@@ -55,7 +62,7 @@ def launch_setup(context: LaunchContext):
         output = 'screen',
         arguments = [
             '-entity', robot_name,
-            '-topic', TextSubstitution(text = robot_topic),
+            '-topic', TextSubstitution(text = robot_description_topic),
             '-robot_namespace', namespace,
             '-x', pose['x'],
             '-y', pose['y'],
@@ -66,7 +73,7 @@ def launch_setup(context: LaunchContext):
         ]
     )
 
-    return [robot_state_publisher_node, spawn_robot_node]
+    return [robot_state_publisher_node, joint_state_publisher_node, spawn_robot_node]
 
 def generate_launch_description():
     declared_arguments = []

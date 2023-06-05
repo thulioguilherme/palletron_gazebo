@@ -68,7 +68,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: <robot_namespace>/scan
+        Value: <robot_namespace>/rplidar/scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: false

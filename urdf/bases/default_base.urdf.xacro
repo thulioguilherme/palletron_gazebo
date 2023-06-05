@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="default_base_macro" params="robot_namespace mass width height depth *origin">
+  <xacro:macro name="default_base_macro" params="robot_namespace mass width depth height *origin">
     <link name="${robot_namespace}/base_footprint"/>
 
     <joint name="${robot_namespace}/base_joint" type="fixed">
       <xacro:insert_block name="origin"/>
       <parent link="${robot_namespace}/base_footprint"/>
-      <child link="${robot_namespace}/base_link" />
+      <child link="${robot_namespace}/base_link"/>
     </joint>
 
     <link name="${robot_namespace}/base_link">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="${width} ${height} ${depth}"/>
+          <box size="${width} ${depth} ${height}"/>
         </geometry>
         <material name="blue"/>
       </visual>
@@ -22,7 +22,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="${width} ${height} ${depth}"/>
+          <box size="${width} ${depth} ${height}"/>
         </geometry>
       </collision>
 

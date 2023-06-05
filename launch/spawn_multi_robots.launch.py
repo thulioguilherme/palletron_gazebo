@@ -32,7 +32,7 @@ def launch_setup(context: LaunchContext):
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
                     PathJoinSubstitution(
-                        [FindPackageShare('palletron_gazebo'), 'launch', 'robot_spawn.launch.py'])),
+                        [FindPackageShare('palletron_gazebo'), 'launch', 'spawn_robot.launch.py'])),
                 launch_arguments = {
                     'namespace': TextSubstitution(text = robot),
                     'robot_name': TextSubstitution(text = robot),
