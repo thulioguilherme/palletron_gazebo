@@ -14,12 +14,12 @@ def launch_setup(context: LaunchContext):
     robot_name = LaunchConfiguration('robot_name')
     robot_urdf = LaunchConfiguration('robot_urdf')
     robot_optional_properties = LaunchConfiguration('robot_optional_properties')
-    pose = {'x': LaunchConfiguration('x_pose', default = '0.0'),
-            'y': LaunchConfiguration('y_pose', default = '0.0'),
-            'z': LaunchConfiguration('z_pose', default = '0.01'),
-            'R': LaunchConfiguration('roll', default = '0.00'),
-            'P': LaunchConfiguration('pitch', default = '0.00'),
-            'Y': LaunchConfiguration('yaw', default = '0.00')}
+    pose = {'x': LaunchConfiguration('x_pose'),
+            'y': LaunchConfiguration('y_pose'),
+            'z': LaunchConfiguration('z_pose'),
+            'R': LaunchConfiguration('roll'),
+            'P': LaunchConfiguration('pitch'),
+            'Y': LaunchConfiguration('yaw')}
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Put namespace on the robot description topic name
@@ -45,14 +45,15 @@ def launch_setup(context: LaunchContext):
         namespace = namespace,
         output = 'screen',
         parameters = [{'robot_description': ParameterValue(robot_description, value_type = str),
-            'use_sim_time' : use_sim_time}]
+            'use_sim_time': use_sim_time}]
     )
 
     joint_state_publisher_node = Node(
         package = 'joint_state_publisher',
         executable = 'joint_state_publisher',
         namespace = namespace,
-        output = 'screen'
+        output = 'screen',
+        parameters = [{'use_sim_time': use_sim_time}]
     )
 
     spawn_robot_node = Node(
@@ -115,7 +116,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_sim_time',
             default_value = 'True',
-            description = 'Whether use simulation time.'
+            description = 'Whether use simulation (Gazebo) clock.'
         )
     )
 
@@ -132,6 +133,14 @@ def generate_launch_description():
             'y_pose',
             default_value = '0.00',
             description = 'The y-component of the initial position (meters).'
+        ) 
+    )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'z_pose',
+            default_value = '0.005',
+            description = 'The z-component of the initial position (meters).'
         ) 
     )
 

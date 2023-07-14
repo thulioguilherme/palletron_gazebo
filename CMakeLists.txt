@@ -16,11 +16,10 @@ find_package(xacro REQUIRED)
 install(
   DIRECTORY
   launch
-  meshes
   params
   rviz
   urdf
   DESTINATION share/${PROJECT_NAME}
- )
+)
 
 ament_package()

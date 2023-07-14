@@ -1,1 +1,3 @@
 use_less_scan_samples: True
+
+enable_ray_visualization: False

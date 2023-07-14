@@ -1,116 +1,110 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">  
-  <xacro:macro name="caster_wheel_macro" params="robot_namespace prefix wheel_mass wheel_radius wheel_length mount_height fork_to_mount_offset_z wheel_to_fork_offset_z parent *origin">
-    <link name="${robot_namespace}/${prefix}_mount_link">
+  <xacro:macro name="caster_wheel_macro" params="robot_namespace parent prefix wheel_mass wheel_radius wheel_width plate_height plate_to_swivel_offset_z swivel_to_wheel_offset_z xyz">
+    <!-- Plate -->
+    <link name="${robot_namespace}/${prefix}_plate_link">
       <visual>
-        <geometry>
-          <box size="0.1145 0.1 ${mount_height}"/>
-        </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
-        <material name="black"/>
+        <geometry>
+          <box size="0.1145 0.1 ${plate_height}"/>
+        </geometry>
+        <material name="grey"/>
       </visual>
 
       <collision>
-        <geometry>
-          <box size="0.1145 0.1 ${mount_height}"/>
-        </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.1145 0.1 ${plate_height}"/>
+        </geometry>
       </collision>
       
       <inertial>
+        <mass value="25.0"/>
         <origin rpy="0 0 0" xyz="0 0 0"/>
-        <mass value="0.25"/>
-        <inertia ixx="0.000209010208333" ixy="0" ixz="0" iyy="0.000273807083333" iyz="0" izz="0.000273807083333"/>
+        <xacro:cuboid_inertia_macro mass="25.0" width="0.1145" depth="0.1" height="${plate_height}"/>
       </inertial>
     </link>
   
-    <joint name="${robot_namespace}/${prefix}_mount_joint" type="fixed">
+    <joint name="${robot_namespace}/${prefix}_plate_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="0 0 0"/>
       <parent link="${robot_namespace}/${parent}"/>
-      <child link="${robot_namespace}/${prefix}_mount_link"/>
-      <xacro:insert_block name="origin"/>
+      <child link="${robot_namespace}/${prefix}_plate_link"/>
     </joint>
-
-    <link name="${robot_namespace}/${prefix}_fork_link">
+    
+    <!-- Swivel -->
+    <link name="${robot_namespace}/${prefix}_swivel_link">
       <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
           <box size="0.02 0.02 0.02"/>
         </geometry>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <material name="black"/>
+        <material name="grey"/>
       </visual>
 
       <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
           <box size="0.02 0.02 0.02"/>
         </geometry>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
       </collision>
       
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
         <mass value="1.5"/>
-        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <xacro:cuboid_inertia_macro mass="1.5" width="0.02" depth="0.02" height="0.02"/>
       </inertial>
     </link>
 
-    <joint name="${robot_namespace}/${prefix}_fork_joint" type="continuous">
-      <axis rpy="0 0 0" xyz="0 0 1"/>
-      <parent link="${robot_namespace}/${prefix}_mount_link"/>
-      <child link="${robot_namespace}/${prefix}_fork_link"/>
-      <origin xyz="0 0 ${fork_to_mount_offset_z}"/>
-      <dynamics damping="0.0" friction="0.15"/>
+    <joint name="${robot_namespace}/${prefix}_swivel_joint" type="continuous">
+      <origin xyz="0 0 ${plate_to_swivel_offset_z}"/>
+      <parent link="${robot_namespace}/${prefix}_plate_link"/>
+      <child link="${robot_namespace}/${prefix}_swivel_link"/>
+      <axis xyz="0 0 1"/>
     </joint>
-
+  
+    <!-- Wheel -->
     <link name="${robot_namespace}/${prefix}_wheel_link">
       <visual>
+        <origin rpy="${rad90} 0 0" xyz="0 0 0"/>
         <geometry>
-          <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
         </geometry>
-        <origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
         <material name="orange"/>
       </visual>
 
       <collision>
+        <origin rpy="${rad90} 0 0" xyz="0 0 0"/>
         <geometry>
-          <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
         </geometry>
-        <origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
       </collision>
       
       <inertial>
-        <origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
         <mass value="${wheel_mass}"/>
-        <xacro:solid_cylinder_inertia_macro mass="${wheel_mass}" radius="${wheel_radius}" height="${wheel_length}"/>
+        <origin rpy="${rad90} 0 0" xyz="0 0 0"/>
+        <xacro:cylinder_inertia_macro mass="${wheel_mass}" radius="${wheel_radius}" height="${wheel_width}"/>
       </inertial>
     </link>
   
     <joint name="${robot_namespace}/${prefix}_wheel_joint" type="continuous">
-      <axis rpy="0 0 0" xyz="0 1 0"/>
-      <parent link="${robot_namespace}/${prefix}_fork_link"/>
+      <origin xyz="-0.037 0 ${swivel_to_wheel_offset_z}"/>
+      <parent link="${robot_namespace}/${prefix}_swivel_link"/>
       <child link="${robot_namespace}/${prefix}_wheel_link"/>
-      <origin xyz="-0.037 0 ${wheel_to_fork_offset_z}"/>
-      <dynamics damping="0.0" friction="0.15"/>
+      <axis rpy="0 0 0" xyz="0 1 0"/>
     </joint>
 
-    <!-- Gazebo extensions -->
-    <gazebo reference="${robot_namespace}/${prefix}_fork_link">
+    <!-- Gazebo elements -->
+    <gazebo reference="${robot_namespace}/${prefix}_plate_link">
       <material>Gazebo/Grey</material>
     </gazebo>
 
-    <gazebo reference="${robot_namespace}/${prefix}_mount_link">
+    <gazebo reference="${robot_namespace}/${prefix}_swivel_link">
       <material>Gazebo/Grey</material>
     </gazebo>
 
     <gazebo reference="${robot_namespace}/${prefix}_wheel_link">
       <material>Gazebo/Orange</material>
-      <kp>1000000.0</kp>
-      <kd>10.0</kd>
-      <mu1>1.0</mu1>
-      <mu2>1.0</mu2>
-      <fdir1>1 0 0</fdir1>
-      <maxVel>1.0</maxVel>
-      <minDepth>0.00</minDepth>
     </gazebo>
   </xacro:macro>
 </robot>

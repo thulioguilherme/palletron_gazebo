@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="hokuyo_macro" params="robot_namespace parent prefix *origin">
+    <joint name="${robot_namespace}/${prefix}_hokuyo_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${robot_namespace}/${parent}"/>
+      <child link="${robot_namespace}/${prefix}_hokuyo_link"/>
+    </joint>
+
+    <link name="${robot_namespace}/${prefix}_hokuyo_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.05 0.05 0.05"/>
+        </geometry>
+        <material name="grey"/>
+      </visual>
+    </link>
+    
+    <!-- Gazebo elements -->
+    <gazebo reference="${robot_namespace}/${prefix}_hokuyo_link">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="${robot_namespace}/${prefix}_hokuyo_link">
+      <sensor name="${robot_namespace}/${prefix}_hokuyo" type="ray">
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+
+        <xacro:if value="${optionals['enable_ray_visualization']}">
+          <visualize>true</visualize>
+        </xacro:if>
+        <xacro:unless value="${optionals['enable_ray_visualization']}">
+          <visualize>false</visualize>
+        </xacro:unless>
+
+        <ray>
+          <scan>
+            <horizontal>
+              <xacro:if value="${optionals['use_less_scan_samples']}">
+                <samples>180</samples>
+              </xacro:if>
+              <xacro:unless value="${optionals['use_less_scan_samples']}">
+                <samples>${16000/15}</samples>
+              </xacro:unless>
+              <resolution>1</resolution>
+              <min_angle>-2.3562</min_angle>
+              <max_angle>2.3562</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.08</min>
+            <max>10</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+
+        <plugin name="${robot_namespace}_${prefix}_koyuko_gazebo_ros_ray_sensor" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <remapping>~/out:=/${robot_namespace}/${prefix}_hokuyo/scan</remapping>
+          </ros>
+          <frame_name>${robot_namespace}/${prefix}_hokuyo_link</frame_name>
+          <output_type>sensor_msgs/LaserScan</output_type>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+</robot>
