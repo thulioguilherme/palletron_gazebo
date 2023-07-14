@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <!-- Materials -->
   <material name="black">
       <color rgba="0.0 0.0 0.0 1.0"/>
   </material>
@@ -43,4 +44,11 @@
   <material name="white">
     <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
+
+  <!-- Math constants -->
+  <xacro:property name="rad0" value="0"/>
+  <xacro:property name="rad45" value="${45*pi/180}"/>
+  <xacro:property name="rad90" value="${90*pi/180}"/>
+  <xacro:property name="rad135" value="${135*pi/180}"/>
+  <xacro:property name="rad180" value="${180*pi/180}"/>
 </robot>

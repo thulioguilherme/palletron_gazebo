@@ -4,13 +4,7 @@ This repository provides the ROS package to simulate the Palletron robot on Gaze
 
 ## Getting started
 
-* On your workspace, clone the [AWS RoboMaker Small Warehouse World](https://github.com/aws-robotics/aws-robomaker-small-warehouse-world) from the `ros2` branch.
-  ```
-  cd ~/<your_workspace>/src
-  git clone https://github.com/aws-robotics/aws-robomaker-small-warehouse-world.git
-  git checkout ros2
-  ```
-* Clone this repository.
+* On your workspace, clone this repository.
   ```
   cd ~/<your_workspace>/src
   git clone https://github.com/thulioguilherme/palletron_gazebo.git
@@ -24,8 +18,8 @@ This repository provides the ROS package to simulate the Palletron robot on Gaze
   ```
   colcon build
   ```
-* Source the `setup.bash` from the `install` folder and launch a simulation.
+* Source the `setup.bash` from the `install` folder and spawn the robot.
   ```
   source install/setup.bash
-  ros2 launch palletron_gazebo palletron_simulation.launch.py
+  ros2 launch palletron_gazebo spawn_robot.launch.py
   ```

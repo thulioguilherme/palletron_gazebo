@@ -3,119 +3,126 @@
 <robot name="palletron" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- Includes -->
   <xacro:include filename="common_properties.urdf.xacro"/>
-
   <xacro:include filename="inertias.urdf.xacro"/>
-
-  <xacro:include filename="bases/default_base.urdf.xacro"/>
-
-  <xacro:include filename="controllers/differential_drive.gazebo.xacro"/>
-
+  
+  <xacro:include filename="bases/base_without_mesh.urdf.xacro"/>
+  
+  <xacro:include filename="plugins/differential_drive.gazebo.xacro"/>
+  
   <xacro:include filename="wheels/drive_wheel.urdf.xacro"/>
-  <xacro:include filename="wheels/caster_wheel.urdf.xacro"/>
+  <xacro:include filename="wheels/dummy_caster_wheel.urdf.xacro"/>
 
-  <xacro:include filename="sensors/rplidar.urdf.xacro"/>
+  <xacro:include filename="sensors/hokuyo.urdf.xacro"/>
+  <xacro:include filename="sensors/imu.urdf.xacro"/>
+  
+  <!-- Load arguments -->
+  <xacro:property name="namespace" value="$(arg namespace)"/>
 
-  <!-- Args -->
-  <xacro:arg name="use_less_scan_samples" default="false"/>
-
-  <!-- TODO: Update according to real properties -->
-
+  <!-- Load optional properties file -->
+  <xacro:property name="optional_properties" value="$(arg optional_properties)"/>
+  <xacro:property name="optionals" value="${xacro.load_yaml(optional_properties)}"/>
+  
   <!-- Base parameters -->
-  <xacro:property name="base_width" value="0.7"/>
+  <xacro:property name="mass" value="10.0"/>
+  <xacro:property name="base_width" value="0.6"/>
+  <xacro:property name="base_length" value="0.7"/>
   <xacro:property name="base_height" value="0.7"/>
-  <xacro:property name="base_depth" value="0.7"/>
-  <xacro:property name="base_mass" value="50"/>
-
+   
   <!-- Drive wheels parameters -->
-  <xacro:property name="drive_wheel_mass" value="4.0"/>
-  <xacro:property name="drive_wheel_radius" value="0.13"/>
-  <xacro:property name="drive_wheel_length" value="0.05"/>
-  <xacro:property name="drive_wheel_separation" value="0.33"/>
-  <xacro:property name="drive_wheel_offset_z" value="-0.275"/>
+  <xacro:property name="drive_wheel_mass" value="1.0"/>
+  <xacro:property name="drive_wheel_radius" value="0.045"/>
+  <xacro:property name="drive_wheel_width" value="0.03"/>
+  <xacro:property name="drive_wheel_offset_x" value="0.275"/>
+  <xacro:property name="drive_wheel_offset_z" value="${-base_height/2 - 0.08}"/>
+  <xacro:property name="drive_wheel_separation" value="0.45"/>
   <xacro:property name="drive_wheel_max_acceleration" value="1.0"/>
-  <xacro:property name="drive_wheel_max_torque" value="6.0"/>
+  <xacro:property name="drive_wheel_max_torque" value="10.0"/>
+   
   <xacro:property name="right_drive_wheel_prefix" value="right_wheel"/>
   <xacro:property name="left_drive_wheel_prefix" value="left_wheel"/>
+  
+  <!-- Dummy caster wheels parameters -->
+  <xacro:property name="dummy_caster_wheel_mass" value="0.0001"/>
+  <xacro:property name="dummy_caster_wheel_radius" value="0.035"/>
+  <xacro:property name="dummy_caster_wheel_width" value="0.03"/>
+  <xacro:property name="dummy_caster_wheel_offset_x" value="1.00"/>
+  <xacro:property name="dummy_caster_wheel_offset_y" value="0.0"/>
+  <xacro:property name="dummy_caster_wheel_offset_ground" value="0.025"/>
 
-  <!-- Caster wheels parameters -->
-  <xacro:property name="caster_radius" value="0.045"/>
-  <xacro:property name="caster_mass" value="0.005"/>
-  <xacro:property name="caster_offset_x" value="0.25"/>
-  <xacro:property name="caster_offset_y" value="0.25"/>
-  <xacro:property name="caster_offset_ground" value="0.005"/>
-
-  <!-- Add default base -->
-  <xacro:default_base_macro mass="${base_mass}"
-    width="${base_width}"
-    height="${base_height}"
-    depth="${base_depth}">
-    <!-- Base footprint origin -->
+  <xacro:property name="dummy_caster_wheel_prefix" value="front_caster_wheel"/>
+  
+  <!-- Base without mesh -->
+  <xacro:base_without_mesh_macro robot_namespace="${namespace}"
+    mass="${mass}"
+    body_width="${base_width}"
+    body_length="${base_length}"
+    body_height="${base_height}">
+    <!-- Base link origin -->
     <origin xyz="0 0 ${drive_wheel_radius - drive_wheel_offset_z}" rpy="0 0 0"/>
-  </xacro:default_base_macro>
-
-  <!-- Add the differential drive plugin -->
-  <xacro:differential_drive_macro right_wheel_prefix="${right_drive_wheel_prefix}"
+  </xacro:base_without_mesh_macro>
+  
+  <!-- Differential drive plugin -->
+  <xacro:differential_drive_macro robot_namespace="${namespace}"
+    right_wheel_prefix="${right_drive_wheel_prefix}"
     left_wheel_prefix="${left_drive_wheel_prefix}"
     wheel_separation="${drive_wheel_separation}"
     wheel_diameter="${drive_wheel_radius * 2}"
     wheel_max_torque="${drive_wheel_max_torque}"
     wheel_max_acceleration="${drive_wheel_max_acceleration}">
   </xacro:differential_drive_macro>
-
-  <!-- Add two drive wheels {-->
-  <xacro:drive_wheel_macro prefix="${right_drive_wheel_prefix}"
-    mass="${drive_wheel_mass}"
-    radius="${drive_wheel_radius}"
-    length="${drive_wheel_length}"
-    parent="base_link">
-    <origin xyz="0 ${-drive_wheel_separation/2} ${drive_wheel_offset_z}" rpy="${-pi/2} 0 0"/>
-  </xacro:drive_wheel_macro>
-
-  <xacro:drive_wheel_macro prefix="${left_drive_wheel_prefix}"
-    mass="${drive_wheel_mass}"
-    radius="${drive_wheel_radius}"
-    length="${drive_wheel_length}"
-    parent="base_link">
-    <origin xyz="0 ${drive_wheel_separation/2} ${drive_wheel_offset_z}" rpy="${-pi/2} 0 0"/>
-  </xacro:drive_wheel_macro>
-
-  <!-- Add four caster wheels -->
-  <xacro:caster_wheel_macro prefix="front_right_caster"
-    mass="${caster_mass}"
-    radius="${caster_radius}"
-    parent="base_link">
-    <origin xyz="-${caster_offset_x} ${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
-  </xacro:caster_wheel_macro>
-
-  <xacro:caster_wheel_macro prefix="front_left_caster"
-    mass="${caster_mass}"
-    radius="${caster_radius}"
-    parent="base_link">
-    <origin xyz="${caster_offset_x} ${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
-  </xacro:caster_wheel_macro>
-
-  <xacro:caster_wheel_macro prefix="rear_right_caster"
-    mass="${caster_mass}"
-    radius="${caster_radius}"
-    parent="base_link">
-    <origin xyz="-${caster_offset_x} -${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
-  </xacro:caster_wheel_macro>
-
-  <xacro:caster_wheel_macro prefix="rear_left_caster"
-    mass="${caster_mass}"
-    radius="${caster_radius}"
-    parent="base_link">
-    <origin xyz="${caster_offset_x} -${caster_offset_y} ${drive_wheel_offset_z + caster_offset_ground - (drive_wheel_radius - caster_radius)}" rpy="0 0 0"/>
-  </xacro:caster_wheel_macro>
-
-  <!-- Add a RPlidar -->
-  <xacro:rplidar_macro x="0"
-    y="0"
-    z="${base_height / 2}"
-    roll="0"
-    pitch="0"
-    yaw="0"
+  
+  <!-- Right drive wheel -->
+  <xacro:drive_wheel_macro robot_namespace="${namespace}"
     parent="base_link"
-    use_less_scan_samples="$(arg use_less_scan_samples)">
-  </xacro:rplidar_macro>
+    prefix="${right_drive_wheel_prefix}"
+    mass="${drive_wheel_mass}"
+    radius="${drive_wheel_radius}"
+    length="${drive_wheel_width}"
+    xyz="${drive_wheel_offset_x} ${-drive_wheel_separation/2} ${drive_wheel_offset_z}">
+  </xacro:drive_wheel_macro>
+
+  <!-- Left drive wheel -->
+  <xacro:drive_wheel_macro robot_namespace="${namespace}"
+    parent="base_link"
+    prefix="${left_drive_wheel_prefix}"
+    mass="${drive_wheel_mass}"
+    radius="${drive_wheel_radius}"
+    length="${drive_wheel_width}"
+    xyz="${drive_wheel_offset_x} ${drive_wheel_separation/2} ${drive_wheel_offset_z}"> 
+  </xacro:drive_wheel_macro>
+  
+  <!-- Dummy caster wheel -->
+  <xacro:dummy_caster_wheel_macro robot_namespace="${namespace}"
+    parent="base_link"
+    prefix="${dummy_caster_wheel_prefix}"
+    xyz="-${dummy_caster_wheel_offset_x} ${dummy_caster_wheel_offset_y} ${drive_wheel_offset_z + dummy_caster_wheel_offset_ground - (drive_wheel_radius - dummy_caster_wheel_radius)}">
+  </xacro:dummy_caster_wheel_macro>
+
+  <!-- Right laser ranger scanner -->
+  <xacro:hokuyo_macro robot_namespace="${namespace}"
+    parent="base_link"
+    prefix="right">
+    <origin xyz="${base_width/2 + 0.025} -${base_length/2 + 0.025} ${-base_height/2}" rpy="${rad180} 0 ${-rad45}"/>
+  </xacro:hokuyo_macro>
+
+  <!-- Left laser ranger scanner -->
+  <xacro:hokuyo_macro robot_namespace="${namespace}"
+    parent="base_link"
+    prefix="left">
+    <origin xyz="-${base_width/2 + 0.025} ${base_length/2 + 0.025} ${-base_height/2}" rpy="${rad180} 0 ${rad135}"/>
+  </xacro:hokuyo_macro>
+
+  <!-- IMU 1 -->
+  <xacro:imu_macro robot_namespace="${namespace}"
+    parent="base_link"
+    suffix="1">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:imu_macro>
+
+  <!-- IMU 2 -->
+  <xacro:imu_macro robot_namespace="${namespace}"
+    parent="base_link"
+    suffix="2">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:imu_macro>
 </robot>

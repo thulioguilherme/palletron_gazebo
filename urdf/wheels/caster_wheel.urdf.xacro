@@ -1,39 +1,110 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">  
-  <xacro:include filename="caster_wheel.gazebo.xacro"/>
-  
-  <xacro:macro name="caster_wheel_macro" params="prefix mass radius parent *origin">
-    <link name="${prefix}_link">
+  <xacro:macro name="caster_wheel_macro" params="robot_namespace parent prefix wheel_mass wheel_radius wheel_width plate_height plate_to_swivel_offset_z swivel_to_wheel_offset_z xyz">
+    <!-- Plate -->
+    <link name="${robot_namespace}/${prefix}_plate_link">
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
-          <sphere radius="${radius}"/>
+          <box size="0.1145 0.1 ${plate_height}"/>
         </geometry>
         <material name="grey"/>
       </visual>
 
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
-          <sphere radius="${radius}"/>
+          <box size="0.1145 0.1 ${plate_height}"/>
         </geometry>
       </collision>
-
+      
       <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <mass value="${mass}"/>
-        <xacro:solid_sphere_inertia_macro mass="${mass}" radius="${radius}"/>
+        <mass value="25.0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <xacro:cuboid_inertia_macro mass="25.0" width="0.1145" depth="0.1" height="${plate_height}"/>
+      </inertial>
+    </link>
+  
+    <joint name="${robot_namespace}/${prefix}_plate_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="0 0 0"/>
+      <parent link="${robot_namespace}/${parent}"/>
+      <child link="${robot_namespace}/${prefix}_plate_link"/>
+    </joint>
+    
+    <!-- Swivel -->
+    <link name="${robot_namespace}/${prefix}_swivel_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.02 0.02 0.02"/>
+        </geometry>
+        <material name="grey"/>
+      </visual>
+
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.02 0.02 0.02"/>
+        </geometry>
+      </collision>
+      
+      <inertial>
+        <mass value="1.5"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <xacro:cuboid_inertia_macro mass="1.5" width="0.02" depth="0.02" height="0.02"/>
       </inertial>
     </link>
 
-    <joint name="${prefix}_joint" type="fixed">
-      <xacro:insert_block name="origin"/>
-      <parent link="${parent}"/>
-      <child link="${prefix}_link"/>
+    <joint name="${robot_namespace}/${prefix}_swivel_joint" type="continuous">
+      <origin xyz="0 0 ${plate_to_swivel_offset_z}"/>
+      <parent link="${robot_namespace}/${prefix}_plate_link"/>
+      <child link="${robot_namespace}/${prefix}_swivel_link"/>
+      <axis xyz="0 0 1"/>
     </joint>
-    
-    <!-- Include Gazebo extensions -->
-    <xacro:caster_wheel_gazebo_macro/>
+  
+    <!-- Wheel -->
+    <link name="${robot_namespace}/${prefix}_wheel_link">
+      <visual>
+        <origin rpy="${rad90} 0 0" xyz="0 0 0"/>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+        </geometry>
+        <material name="orange"/>
+      </visual>
+
+      <collision>
+        <origin rpy="${rad90} 0 0" xyz="0 0 0"/>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+        </geometry>
+      </collision>
+      
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <origin rpy="${rad90} 0 0" xyz="0 0 0"/>
+        <xacro:cylinder_inertia_macro mass="${wheel_mass}" radius="${wheel_radius}" height="${wheel_width}"/>
+      </inertial>
+    </link>
+  
+    <joint name="${robot_namespace}/${prefix}_wheel_joint" type="continuous">
+      <origin xyz="-0.037 0 ${swivel_to_wheel_offset_z}"/>
+      <parent link="${robot_namespace}/${prefix}_swivel_link"/>
+      <child link="${robot_namespace}/${prefix}_wheel_link"/>
+      <axis rpy="0 0 0" xyz="0 1 0"/>
+    </joint>
+
+    <!-- Gazebo elements -->
+    <gazebo reference="${robot_namespace}/${prefix}_plate_link">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="${robot_namespace}/${prefix}_swivel_link">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="${robot_namespace}/${prefix}_wheel_link">
+      <material>Gazebo/Orange</material>
+    </gazebo>
   </xacro:macro>
 </robot>
