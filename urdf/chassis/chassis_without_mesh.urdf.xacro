@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="chassis_without_mesh_macro" params="robot_namespace mass chassis_width chassis_length chassis_height *base_footprint_origin *chassis_origin">
+    <!-- Base link -->
+    <link name="${robot_namespace}/base_link"/>
+
+    <!-- Base footprint -->
+    <link name="${robot_namespace}/base_footprint"/>
+
+    <joint name="${robot_namespace}/base_footprint_joint" type="fixed">
+      <xacro:insert_block name="base_footprint_origin"/>
+      <parent link="${robot_namespace}/base_link"/>
+      <child link="${robot_namespace}/base_footprint"/>
+    </joint>
+
+    <!-- Chassis -->
+    <link name="${robot_namespace}/chassis_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${chassis_width} ${chassis_length} ${chassis_height}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${chassis_width} ${chassis_length} ${chassis_height}"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <xacro:cuboid_inertia_macro mass="${mass}" width="${chassis_width}" length="${chassis_length}" height="${chassis_height}"/>
+      </inertial>
+    </link>
+
+    <joint name="${robot_namespace}/chassis_joint" type="fixed">
+      <xacro:insert_block name="chassis_origin"/>
+      <parent link="${robot_namespace}/base_link"/>
+      <child link="${robot_namespace}/chassis_link"/>
+    </joint>
+
+    <!-- Gazebo elements -->
+    <gazebo reference="${robot_namespace}/chassis_link">
+      <material>Gazebo/Blue</material>
+    </gazebo>
+  </xacro:macro>
+</robot>

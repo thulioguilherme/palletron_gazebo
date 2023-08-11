@@ -2,12 +2,6 @@
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="hokuyo_macro" params="robot_namespace parent prefix *origin">
-    <joint name="${robot_namespace}/${prefix}_hokuyo_joint" type="fixed">
-      <xacro:insert_block name="origin"/>
-      <parent link="${robot_namespace}/${parent}"/>
-      <child link="${robot_namespace}/${prefix}_hokuyo_link"/>
-    </joint>
-
     <link name="${robot_namespace}/${prefix}_hokuyo_link">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -17,6 +11,12 @@
         <material name="grey"/>
       </visual>
     </link>
+
+    <joint name="${robot_namespace}/${prefix}_hokuyo_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${robot_namespace}/${parent}"/>
+      <child link="${robot_namespace}/${prefix}_hokuyo_link"/>
+    </joint>
     
     <!-- Gazebo elements -->
     <gazebo reference="${robot_namespace}/${prefix}_hokuyo_link">

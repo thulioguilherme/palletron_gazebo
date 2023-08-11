@@ -1,3 +1,4 @@
+# Minimum required version of cmake, project name and compile options
 cmake_minimum_required(VERSION 3.8)
 project(palletron_gazebo)
 
@@ -9,15 +10,16 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
+# Find ament packages and libraries for ament and system dependencies
 find_package(ament_cmake REQUIRED)
-find_package(xacro REQUIRED)
+find_package(gazebo_ros REQUIRED)
+find_package(gazebo_plugins REQUIRED)
 
+# Install
 install(
   DIRECTORY
   launch
   params
-  rviz
   urdf
   DESTINATION share/${PROJECT_NAME}
 )

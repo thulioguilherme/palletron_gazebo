@@ -2,7 +2,13 @@
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="imu_macro" params="robot_namespace parent suffix *origin">
-    <link name="${robot_namespace}/imu${suffix}_link"/>
+    <link name="${robot_namespace}/imu${suffix}_link">
+      <inertial>
+        <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+        <mass value="0.0015"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </inertial>
+    </link>
     
     <joint name="${robot_namespace}/imu${suffix}_joint" type="fixed">
       <xacro:insert_block name="origin"/>
@@ -13,14 +19,19 @@
     
     <!-- Gazebo elements -->
     <gazebo reference="${robot_namespace}/imu${suffix}_link">
+      <gravity>true</gravity>
       <sensor name="${robot_namespace}/imu${suffix}" type="imu">
         <always_on>true</always_on>
-        <visualize>false</visualize>
         <update_rate>100</update_rate>
+        <visualize>true</visualize>
         <plugin name="${robot_namespace}_imu${suffix}_gazebo_ros_imu_sensor" filename="libgazebo_ros_imu_sensor.so">
           <ros>
-            <remapping>~/out:=/${robot_namespace}/imu${suffix}</remapping>
+            <remapping>~/out:=/${robot_namespace}/imu${suffix}/data</remapping>
           </ros>
+          <body_name>${robot_namespace}/imu${suffix}_link</body_name>
+          <gaussian_noise>0.0</gaussian_noise>
+          <xyz_offset>0 0 0</xyz_offset>
+          <rpy_offset>0 0 0</rpy_offset>
           <frame_name>${robot_namespace}/imu${suffix}_link</frame_name>
           <initial_orientation_as_reference>false</initial_orientation_as_reference>
         </plugin>

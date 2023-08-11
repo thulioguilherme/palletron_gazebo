@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="p3d_plugin_macro" params="robot_namespace parent update_rate topic_name mass body_name frame_name noise xyz_offset rpy_offset *inertia *origin">
+    <link name="${robot_namespace}/odometry_ground_truth_link">
+      <xacro:insert_block name="inertia"/>
+      <mass value="${mass}"/>
+    </link>
+
+    <joint name="${robot_namespace}/odometry_ground_truth_link_joint" type="revolute">
+      <parent link="${robot_namespace}/${parent}"/>
+      <xacro:insert_block name="origin"/>
+      <child link="${robot_namespace}/odometry_ground_truth_link"/>
+      <limit upper="0" lower="0" effort="0" velocity="0"/>
+    </joint>
+
+    <gazebo>
+      <plugin name="gazebo_ros_p3d" filename="libgazebo_ros_p3d.so">
+        <ros>
+          <remapping>odom:=odometry/ground_truth</remapping>
+        </ros>
+        <always_on>true</always_on>
+        <update_rate>${update_rate}</update_rate>
+        <body_name>${robot_namespace}/base_link</body_name>
+        <gaussian_noise>${noise}</gaussian_noise>
+        <frame_name>${frame_name}</frame_name>
+        <xyz_offset>${xyz_offset}</xyz_offset>
+        <rpy_offset>${rpy_offset}</rpy_offset>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>

@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="differential_drive_macro" params="robot_namespace right_wheel_prefix left_wheel_prefix wheel_separation wheel_diameter wheel_max_torque wheel_max_acceleration">
+  <xacro:macro name="differential_drive_plugin_macro" params="robot_namespace right_wheel_prefix left_wheel_prefix wheel_separation wheel_diameter wheel_max_torque wheel_max_acceleration">
     <gazebo>
       <plugin name="gazebo_ros_diff_drive" filename="libgazebo_ros_diff_drive.so">
         <ros>
           <remapping>odom:=odometry/unfiltered</remapping>
-          <remapping>cmd_vel:=velocity_cmd</remapping>
         </ros>
         <odometry_frame>${robot_namespace}/odom</odometry_frame>
         <update_rate>100</update_rate>
@@ -19,7 +18,7 @@
         <publish_odom>true</publish_odom>
         <publish_odom_tf>true</publish_odom_tf>
         <publish_wheel_tf>false</publish_wheel_tf>
-        <robot_base_frame>${robot_namespace}/base_footprint</robot_base_frame>
+        <robot_base_frame>${robot_namespace}/base_link</robot_base_frame>
       </plugin>
     </gazebo>
   </xacro:macro>

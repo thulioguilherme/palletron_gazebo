@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">  
-  <xacro:macro name="dummy_caster_wheel_macro" params="robot_namespace parent prefix xyz">
+  <xacro:macro name="dummy_caster_wheel_macro" params="robot_namespace parent radius prefix xyz">
     <link name="${robot_namespace}/${prefix}_link">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>

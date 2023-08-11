@@ -139,7 +139,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'z_pose',
-            default_value = '0.005',
+            default_value = '0.05',
             description = 'The z-component of the initial position (meters).'
         ) 
     )

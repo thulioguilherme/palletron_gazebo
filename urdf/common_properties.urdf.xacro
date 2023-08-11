@@ -47,8 +47,11 @@
 
   <!-- Math constants -->
   <xacro:property name="rad0" value="0"/>
+  <xacro:property name="rad30" value="${30*pi/180}" />
   <xacro:property name="rad45" value="${45*pi/180}"/>
   <xacro:property name="rad90" value="${90*pi/180}"/>
   <xacro:property name="rad135" value="${135*pi/180}"/>
+  <xacro:property name="rad150" value="${150*pi/180}" />
   <xacro:property name="rad180" value="${180*pi/180}"/>
+  <xacro:property name="rad210" value="${210*pi/180}" />
 </robot>

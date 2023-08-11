@@ -15,11 +15,7 @@ def launch_setup(context: LaunchContext):
     spawn_params_file = LaunchConfiguration('spawn_params_file')
 
     # Get spawn file path as string
-    spawn_param_file_path = PathJoinSubstitution(
-        [FindPackageShare('palletron_gazebo'),
-            'params',
-            'spawn',
-            spawn_params_file]).perform(context)
+    spawn_param_file_path = spawn_params_file.perform(context)
 
     # Open spawn configuration file
     with open(spawn_param_file_path) as file:
@@ -38,6 +34,7 @@ def launch_setup(context: LaunchContext):
                     'robot_name': TextSubstitution(text = robot),
                     'x_pose': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['x'])),
                     'y_pose': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['y'])),
+                    'z_pose': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['z'])),
                     'roll': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['roll'])),
                     'pitch': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['pitch'])),
                     'yaw': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['yaw']))
@@ -54,8 +51,8 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'spawn_params_file',
-            default_value = 'one_robot.yaml',
-            description = 'Name of the file with the robots to spawn.'
+            default_value = PathJoinSubstitution([FindPackageShare('palletron_gazebo'), 'params', 'spawn', 'two_robots.yaml']),
+            description = 'Full path to the file with the robots to spawn.'
         )
     )
     
