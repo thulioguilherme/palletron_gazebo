@@ -10,8 +10,9 @@ from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchC
 
 from launch_ros.substitutions import FindPackageShare
 
+
 def launch_setup(context: LaunchContext):
-    # Arguments
+    # Initialize arguments
     spawn_params_file = LaunchConfiguration('spawn_params_file')
 
     # Get spawn file path as string
@@ -19,7 +20,7 @@ def launch_setup(context: LaunchContext):
 
     # Open spawn configuration file
     with open(spawn_param_file_path) as file:
-        spawn_params_dict = yaml.load(file, Loader = yaml.loader.SafeLoader)
+        spawn_params_dict = yaml.load(file, Loader=yaml.loader.SafeLoader)
 
     # Declare launches
     spawn_launch_instances = []
@@ -28,21 +29,23 @@ def launch_setup(context: LaunchContext):
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
                     PathJoinSubstitution(
-                        [FindPackageShare('palletron_gazebo'), 'launch', 'spawn_robot.launch.py'])),
-                launch_arguments = {
-                    'namespace': TextSubstitution(text = robot),
-                    'robot_name': TextSubstitution(text = robot),
-                    'x_pose': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['x'])),
-                    'y_pose': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['y'])),
-                    'z_pose': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['z'])),
-                    'roll': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['roll'])),
-                    'pitch': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['pitch'])),
-                    'yaw': TextSubstitution(text = str(spawn_params_dict[robot]['pose']['yaw']))
-                }.items()
-            )
+                        [FindPackageShare('palletron_gazebo'),
+                         'launch',
+                         'spawn_robot.launch.py'])),
+                launch_arguments={
+                    'namespace': TextSubstitution(text=robot),
+                    'robot_name': TextSubstitution(text=robot),
+                    'x_pose': TextSubstitution(text=str(spawn_params_dict[robot]['pose']['x'])),
+                    'y_pose': TextSubstitution(text=str(spawn_params_dict[robot]['pose']['y'])),
+                    'z_pose': TextSubstitution(text=str(spawn_params_dict[robot]['pose']['z'])),
+                    'roll': TextSubstitution(text=str(spawn_params_dict[robot]['pose']['roll'])),
+                    'pitch': TextSubstitution(text=str(spawn_params_dict[robot]['pose']['pitch'])),
+                    'yaw': TextSubstitution(text=str(spawn_params_dict[robot]['pose']['yaw']))
+                }.items())
         )
 
     return spawn_launch_instances
+
 
 def generate_launch_description():
     declared_arguments = []
@@ -51,9 +54,11 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'spawn_params_file',
-            default_value = PathJoinSubstitution([FindPackageShare('palletron_gazebo'), 'params', 'spawn', 'two_robots.yaml']),
-            description = 'Full path to the file with the robots to spawn.'
-        )
-    )
-    
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function = launch_setup)])
+            default_value=PathJoinSubstitution(
+                [FindPackageShare('palletron_gazebo'),
+                 'params',
+                 'spawn',
+                 'two_robots.yaml']),
+            description='Full path to the file with the robots to spawn.'))
+
+    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])

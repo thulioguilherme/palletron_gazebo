@@ -135,7 +135,7 @@
       update_rate="100"
       topic_name="odometry/ground_truth"
       mass="0.00001"
-      body_name="base_footprint"
+      body_name="base_link"
       frame_name="world"
       noise="0"
       xyz_offset="0 0 0"

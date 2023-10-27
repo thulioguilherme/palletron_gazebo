@@ -21,7 +21,7 @@
         </ros>
         <always_on>true</always_on>
         <update_rate>${update_rate}</update_rate>
-        <body_name>${robot_namespace}/base_link</body_name>
+        <body_name>${robot_namespace}/${body_name}</body_name>
         <gaussian_noise>${noise}</gaussian_noise>
         <frame_name>${frame_name}</frame_name>
         <xyz_offset>${xyz_offset}</xyz_offset>
