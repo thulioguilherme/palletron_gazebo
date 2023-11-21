@@ -1,13 +1,13 @@
-from launch import LaunchDescription, LaunchContext
+from launch import LaunchContext, LaunchDescription
 
-from launch.actions import OpaqueFunction, DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 
-from launch.substitutions import (PathJoinSubstitution, TextSubstitution,
-                                  LaunchConfiguration, Command)
+from launch.substitutions import (Command, LaunchConfiguration, PathJoinSubstitution,
+                                  TextSubstitution)
 
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.substitutions import FindPackageShare
 
 
 def launch_setup(context: LaunchContext):
@@ -27,18 +27,10 @@ def launch_setup(context: LaunchContext):
     # Put namespace on the robot description topic name
     robot_description_topic = namespace.perform(context) + '/robot_description'
 
-    # Get full path to the robot URDF file
-    robot_urdf_path = PathJoinSubstitution(
-        [FindPackageShare('palletron_gazebo'), 'urdf', robot_urdf])
-
-    # Get full path to the robot optional properties file
-    robot_optional_properties_path = PathJoinSubstitution(
-        [FindPackageShare('palletron_gazebo'), 'params', 'xacro', robot_optional_properties])
-
     # Load robot description using Xacro
-    robot_description = Command(['xacro ', robot_urdf_path,
+    robot_description = Command(['xacro ', robot_urdf,
                                  ' namespace:=', namespace,
-                                 ' optional_properties:=', robot_optional_properties_path])
+                                 ' optional_properties:=', robot_optional_properties])
 
     # Declare nodes
     robot_state_publisher_node = Node(
@@ -94,14 +86,16 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'robot_urdf',
-            default_value='palletron.xacro',
-            description='Robot URDF/XACRO file.'))
+            default_value=PathJoinSubstitution([FindPackageShare('palletron_gazebo'),
+                                                'urdf', 'palletron.xacro']),
+            description='Full path to the robot URDF/XACRO file.'))
 
     declared_arguments.append(
         DeclareLaunchArgument(
             'robot_optional_properties',
-            default_value='default_optionals.yaml',
-            description='File with the optionals properties of the robot.'))
+            default_value=PathJoinSubstitution([FindPackageShare('palletron_gazebo'),
+                                                'params', 'xacro', 'default_optionals.yaml']),
+            description='Full path to the yaml file with the optionals properties of the robot.'))
 
     declared_arguments.append(
         DeclareLaunchArgument(
